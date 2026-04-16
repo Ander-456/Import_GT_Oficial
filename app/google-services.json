@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "702045048555",
+    "project_id": "importadora-gt",
+    "storage_bucket": "importadora-gt.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:702045048555:android:97eee9907dbaeeb781f8ae",
+        "android_client_info": {
+          "package_name": "com.salguero.importadoragtcliente"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "702045048555-543816mdtijcb1a6t0ib24mhrtdkk92u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.salguero.importadoragtcliente",
+            "certificate_hash": "7edc66e40196b2ff4d0823566c2e7107c2f56c27"
+          }
+        },
+        {
+          "client_id": "702045048555-sonm3qfufiuakfr2egc9e8giaf4t049m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHHzLPyY8vFaqKiWymBJfkDjM3g8iBywE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "702045048555-sonm3qfufiuakfr2egc9e8giaf4t049m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
