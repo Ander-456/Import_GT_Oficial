@@ -94,15 +94,15 @@ fun PerfilScreen(
                     // 1. Cerramos sesión en Firebase
                     auth.signOut()
 
-                    // 2. Cerramos sesión en Google (¡Obliga a elegir cuenta la próxima vez!)
+                    // 2. Cerrar sesión en Google (¡Obliga a elegir cuenta la próxima vez!)
                     googleSignInClient.signOut().addOnCompleteListener {
-                        // 3. Regresamos al Login
+                        // 3. Regresar al Login
                         onCerrarSesionSuccess()
                     }
                 },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error, // Rojo adaptable
+                    containerColor = MaterialTheme.colorScheme.error,
                     contentColor = MaterialTheme.colorScheme.onError
                 ),
                 shape = RoundedCornerShape(12.dp)

@@ -36,7 +36,7 @@ class RegistroViewModel : ViewModel() {
         _cargando.value = true
         _error.value = null
 
-        // Magia de Firebase para CREAR usuario nuevo
+        // CREAR usuario nuevo
         auth.createUserWithEmailAndPassword(email, contrasena)
             .addOnCompleteListener { tarea ->
                 _cargando.value = false

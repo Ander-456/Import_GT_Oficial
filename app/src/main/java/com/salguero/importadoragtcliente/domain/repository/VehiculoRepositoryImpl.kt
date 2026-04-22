@@ -13,7 +13,7 @@ class VehiculoRepositoryImpl : VehiculoRepository {
         return try {
             val result = db.collection("Vehiculos").get().await()
 
-            // Mapeo manual (A prueba de balas): Convertimos cada documento y le pegamos su ID real
+            // Mapeo manual Convertimos cada documento y le pegamos su ID real
             result.documents.mapNotNull { documento ->
                 val vehiculo = documento.toObject(Vehiculo::class.java)
                 vehiculo?.copy(id = documento.id)
@@ -30,7 +30,7 @@ class VehiculoRepositoryImpl : VehiculoRepository {
         return try {
             val documento = db.collection("Vehiculos").document(id).get().await()
             val vehiculo = documento.toObject(Vehiculo::class.java)
-            // Aseguramos que el carro individual también lleve su ID
+            // Asegurar que el carro individual también lleve su ID
             vehiculo?.copy(id = documento.id)
         } catch (e: Exception) {
             Log.e("Repository", "Error buscando el vehículo $id: ${e.message}")

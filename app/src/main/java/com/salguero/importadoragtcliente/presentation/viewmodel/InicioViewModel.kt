@@ -62,7 +62,7 @@ class InicioViewModel : ViewModel() {
                         }
                     }
                     if (todosLosVehiculos.isNotEmpty()) {
-                        // Mezclamos todos y tomamos un máximo de 20 para hacer la cuadrícula
+
                         val sugerencias = todosLosVehiculos.shuffled().take(20)
                         _sugerenciasAleatorias.value = sugerencias
                     }
