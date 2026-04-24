@@ -1,4 +1,4 @@
-package com.salguero.importadoragtcliente.ui.theme
+package com.salguero.importadoragtcliente.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
