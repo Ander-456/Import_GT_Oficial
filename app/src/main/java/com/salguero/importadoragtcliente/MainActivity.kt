@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -26,19 +28,13 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.firebase.messaging.FirebaseMessaging
-import com.salguero.importadoragtcliente.presentation.ui.CatalogoScreen
-import com.salguero.importadoragtcliente.presentation.ui.DetalleScreen
-import com.salguero.importadoragtcliente.presentation.ui.PerfilScreen
-import com.salguero.importadoragtcliente.presentation.ui.theme.ImportGTTheme
-import com.salguero.importadoragtcliente.presentation.ui.theme.InicioScreen
-import com.salguero.importadoragtcliente.presentation.ui.theme.LoginScreen
-import com.salguero.importadoragtcliente.presentation.ui.theme.RegistroScreen
+import com.salguero.importadoragtcliente.presentation.ui.*
+import com.salguero.importadoragtcliente.presentation.ui.theme.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Suscripción a notificaciones push de Firebase
         FirebaseMessaging.getInstance().subscribeToTopic("ofertas")
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) { }
@@ -63,26 +59,25 @@ fun MainApp() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    // Validamos en qué pantallas debe ser visible la barra de navegación inferior
+    // Definicion de los destinos que muestran la barra de navegacion flotante
     val esInicio = currentRoute == "inicio"
+    val esFavoritos = currentRoute == "favoritos"
+    val esUbicacion = currentRoute == "ubicacion"
     val esPerfil = currentRoute == "perfil"
-    val mostrarBarra = esInicio || esPerfil
+    val mostrarBarra = esInicio || esFavoritos || esUbicacion || esPerfil
 
-    // Usamos un Scaffold vacío para manejar el padding general del sistema (como el notch)
     Scaffold { paddingValues ->
-
-        // Arquitectura de Capas (Z-Index) para permitir que el contenido fluya detrás de la barra flotante
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
 
-            // --- CAPA 1 (FONDO): EL NAVEGADOR Y LAS PANTALLAS ---
+            // Grafo de navegacion principal
             NavHost(
                 navController = navController,
                 startDestination = "login",
-                modifier = Modifier.fillMaxSize() // Ocupa el 100% de la pantalla
+                modifier = Modifier.fillMaxSize()
             ) {
                 composable("login") {
                     LoginScreen(
@@ -99,18 +94,32 @@ fun MainApp() {
                 composable("inicio") {
                     InicioScreen(
                         onNavigateToCatalogo = { navController.navigate("catalogo") },
-                        onNavigateToCitas = { /* TODO: Fase 4 */ },
-                        onNavigateToFinanciamiento = { /* TODO: Fase 4 */ },
+                        onNavigateToCitas = { /* Pendiente Fase 4 */ },
+                        onNavigateToFinanciamiento = { /* Pendiente Fase 4 */ },
                         onNavigateToVehiculoDetalle = { id -> navController.navigate("detalle/$id") }
                     )
                 }
+
+                composable("favoritos") {
+                    FavoritosScreen(
+                        onVehiculoClick = { id -> navController.navigate("detalle/$id") },
+                        onBackClick = { navController.popBackStack() }
+                    )
+                }
+
+                // NUEVA RUTA INTEGRADA: UBICACION (GOOGLE MAPS)
+                composable("ubicacion") {
+                    UbicacionScreen(
+                        onBackClick = { navController.popBackStack() }
+                    )
+                }
+
                 composable("perfil") {
                     PerfilScreen(
                         onCerrarSesionSuccess = { navController.navigate("login") { popUpTo(0) } }
                     )
                 }
 
-                // Ruta del catálogo con soporte para parámetros opcionales (Filtro por financiamiento)
                 composable(
                     route = "catalogo?maxPrecio={maxPrecio}",
                     arguments = listOf(
@@ -135,17 +144,17 @@ fun MainApp() {
                 }
             }
 
-            // --- CAPA 2 (FRENTE): LA BARRA DE NAVEGACIÓN FLOTANTE ---
+            // Barra de Navegacion Flotante con 4 destinos
             if (mostrarBarra) {
                 Box(
                     modifier = Modifier
-                        .align(Alignment.BottomCenter) // Anclada en la parte inferior
+                        .align(Alignment.BottomCenter)
                         .fillMaxWidth()
-                        .padding(horizontal = 32.dp, vertical = 24.dp) // Espaciado para el efecto flotante
+                        .padding(horizontal = 24.dp, vertical = 24.dp) // Reduje un poco el horizontal para que quepan bien los 4 items
                 ) {
                     Surface(
                         shape = RoundedCornerShape(24.dp),
-                        shadowElevation = 16.dp, // Sombra profunda para destacar sobre el contenido
+                        shadowElevation = 16.dp,
                         color = MaterialTheme.colorScheme.surface,
                         tonalElevation = 4.dp
                     ) {
@@ -153,9 +162,10 @@ fun MainApp() {
                             containerColor = Color.Transparent,
                             contentColor = MaterialTheme.colorScheme.onSurface,
                             tonalElevation = 0.dp,
-                            windowInsets = WindowInsets(0, 0, 0, 0), // Remueve los márgenes por defecto
+                            windowInsets = WindowInsets(0, 0, 0, 0),
                             modifier = Modifier.fillMaxWidth()
                         ) {
+                            // ITEM INICIO
                             NavigationBarItem(
                                 selected = esInicio,
                                 onClick = {
@@ -169,15 +179,52 @@ fun MainApp() {
                                 label = { Text("Inicio") },
                                 colors = NavigationBarItemDefaults.colors(
                                     indicatorColor = MaterialTheme.colorScheme.secondaryContainer,
-                                    selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                    selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer
                                 )
                             )
 
+                            // ITEM FAVORITOS
+                            NavigationBarItem(
+                                selected = esFavoritos,
+                                onClick = {
+                                    navController.navigate("favoritos") {
+                                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                icon = { Icon(Icons.Default.Favorite, contentDescription = "Favoritos") },
+                                label = { Text("Favoritos") },
+                                colors = NavigationBarItemDefaults.colors(
+                                    indicatorColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                            )
+
+                            // ITEM UBICACION (NUEVO)
+                            NavigationBarItem(
+                                selected = esUbicacion,
+                                onClick = {
+                                    navController.navigate("ubicacion") {
+                                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                icon = { Icon(Icons.Default.LocationOn, contentDescription = "Ubicación") },
+                                label = { Text("Ubicación") },
+                                colors = NavigationBarItemDefaults.colors(
+                                    indicatorColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                            )
+
+                            // ITEM PERFIL
                             NavigationBarItem(
                                 selected = esPerfil,
                                 onClick = {
                                     navController.navigate("perfil") {
+                                        popUpTo(navController.graph.startDestinationId) { saveState = true }
                                         launchSingleTop = true
                                         restoreState = true
                                     }
@@ -186,8 +233,7 @@ fun MainApp() {
                                 label = { Text("Perfil") },
                                 colors = NavigationBarItemDefaults.colors(
                                     indicatorColor = MaterialTheme.colorScheme.secondaryContainer,
-                                    selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                    selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer
                                 )
                             )
                         }
